@@ -1,0 +1,66 @@
+@echo off
+title FiveM FULL Latency Tune
+color 0A
+
+echo =================================
+echo   FiveM FULL LATENCY TUNE
+echo =================================
+echo.
+
+:: Game Mode
+echo [1] Game Mode
+reg add "HKCU\Software\Microsoft\GameBar" /v AutoGameModeEnabled /t REG_DWORD /d 1 /f >nul
+
+:: Disable Game DVR
+echo [2] Disable Capture
+reg add "HKCU\System\GameConfigStore" /v GameDVR_Enabled /t REG_DWORD /d 0 /f >nul
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\GameDVR" /v AppCaptureEnabled /t REG_DWORD /d 0 /f >nul
+
+
+:: Mouse Input
+echo [3] Mouse Input
+reg add "HKCU\Control Panel\Mouse" /v MouseSpeed /t REG_SZ /d 0 /f
+reg add "HKCU\Control Panel\Mouse" /v MouseThreshold1 /t REG_SZ /d 0 /f
+reg add "HKCU\Control Panel\Mouse" /v MouseThreshold2 /t REG_SZ /d 0 /f
+
+
+:: Windows Gaming Scheduler
+echo [4] Scheduler
+reg add "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile" /v SystemResponsiveness /t REG_DWORD /d 0 /f
+
+reg add "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile" /v NetworkThrottlingIndex /t REG_DWORD /d 4294967295 /f
+
+
+:: Game Priority
+echo [5] Game Priority
+reg add "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Games" /v Priority /t REG_DWORD /d 8 /f
+
+reg add "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Games" /v "GPU Priority" /t REG_DWORD /d 8 /f
+
+reg add "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Games" /v "Scheduling Category" /t REG_SZ /d High /f
+
+
+:: GPU Scheduling
+echo [6] GPU Scheduling
+reg add "HKLM\SYSTEM\CurrentControlSet\Control\GraphicsDrivers" /v HwSchMode /t REG_DWORD /d 2 /f
+
+
+:: Network Response
+echo [7] Network
+for /f "tokens=*" %%i in ('reg query "HKLM\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters\Interfaces"') do (
+reg add "%%i" /v TCPNoDelay /t REG_DWORD /d 1 /f >nul 2>&1
+reg add "%%i" /v TcpAckFrequency /t REG_DWORD /d 1 /f >nul 2>&1
+)
+
+
+:: DNS
+echo [8] Flush DNS
+ipconfig /flushdns
+
+
+echo.
+echo ===============================
+echo        COMPLETE
+echo   Restart PC Before FiveM
+echo ===============================
+pause
